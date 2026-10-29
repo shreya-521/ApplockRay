@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">AppLock</string>
+    <string name="desc">Detects which app is opened so AppLock can ask for your PIN or pattern. Nothing is read, stored or sent.</string>
+    <color name="red">#B71C1C</color>
+    <style name="App" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/red</item>
+        <item name="android:statusBarColor">@color/red</item>
+        <item name="android:navigationBarColor">@color/red</item>
+    </style>
+</resources>

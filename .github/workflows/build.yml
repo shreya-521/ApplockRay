@@ -1,0 +1,60 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build release APK
+        run: ./gradlew assembleRelease
+
+      - name: Upload APK as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AppLock-release-apk
+          path: app/build/outputs/apk/release/*.apk
+          retention-days: 90
+
+      - name: Create GitHub Release
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: "AppLock v1.0.${{ github.run_number }}"
+          body: |
+            ## AppLock Release Build
+            
+            This APK is built automatically from the latest code.
+            
+            ### Installation
+            1. Download the APK below
+            2. On your Android phone, go to **Settings → Security** and enable **Install from unknown sources**
+            3. Open the downloaded APK and install it
+            4. Grant **Accessibility Service** permission when prompted
+            
+            > ⚠️ No internet permission required — works completely offline!
+          files: app/build/outputs/apk/release/*.apk
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
